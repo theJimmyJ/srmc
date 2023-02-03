@@ -3,7 +3,6 @@
 //! `srmc` is a collection of mathematical methods, functions, and other useful tools. The goal is to make a stand alone math focused crate that can be used for a wide variety of applications.
 //! Will be continuously updated and improved as I imporve with the Rust langauge.
 //!
-
 /// Creates a vector in numerical order from start to end with steps + 1 elements.
 /// NOTE: Elements of vector should be evenly spaced, but often times last two are not. Working on a fix for it, but if evenly spaced values is vital you may need to remove the final value or choose a different step size.
 ///
