@@ -78,6 +78,43 @@ pub fn simpsons(f: &dyn Fn(f32) -> f32, lower: f32, upper: f32, steps: i32) -> f
     return ans;
 }
 
+/// Uses The Trapezoidal Rule to evaluate a definite integral. Function to be integrated must take on parameter of type f32, and return a value of type f32.
+/// See the example functions (sin_x and x_cubed) for examples on how to format input.
+///
+/// # Examples
+///
+/// Integrating the function x cubed from 2.0 to 10.0 with a step size of 10000.
+/// ```
+/// let calculated_val = srmc::trapzoidal_rule(&srmc::x_cubed, 2.0, 10.0, 10000);
+/// ```
+/// Integrating the function sin(x) from 2.0 to 10.0 with a step size of 10000.
+/// ```
+/// let calculated_val = srmc::trapzoidal_rule(&srmc::sin_x, 2.0, 10.0, 10000);
+/// ```
+pub fn trapzoidal_rule(f: &dyn Fn(f32) -> f32, lower: f32, upper: f32, steps: i32) -> f32 {
+    if lower > upper {
+        panic!("Upper bound must be greater than lower bound.");
+    }
+    if steps % 2 != 0 {
+        panic!("Steps must be an even number.")
+    }
+    let values = create_sequential_vec(lower, upper, steps);
+    let mut ans: f32 = 0.0;
+    let mut index = 0;
+    let max_index = values.len() - 1;
+    while index < values.len() {
+        if index == 0 || index == max_index {
+            ans = ans + f(values[index]);
+            index = index + 1;
+        } else {
+            ans = ans + f(values[index]) * 2.0;
+            index = index + 1;
+        }
+    }
+    ans = ((upper - lower) / (2.0 * steps as f32)) * ans;
+    return ans;
+}
+
 /// Function to calculate the relative error between two values
 ///
 /// # Example
