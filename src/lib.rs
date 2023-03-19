@@ -3,6 +3,8 @@
 //! `srmc` is a collection of mathematical methods, functions, and other useful tools. The goal is to make a stand alone math focused crate that can be used for a wide variety of applications.
 //! Will be continuously updated and improved as I imporve with the Rust langauge.
 //!
+
+use core::panic;
 /// Creates a vector in numerical order from start to end with steps + 1 elements.
 /// NOTE: Elements of vector should be evenly spaced, but often times last two are not. Working on a fix for it, but if evenly spaced values is vital you may need to remove the final value or choose a different step size.
 ///
@@ -20,7 +22,6 @@
 ///
 /// assert_eq!(vec3, vec4);
 /// ```
-
 pub fn create_sequential_vec(start: f32, end: f32, steps: i32) -> Vec<f32> {
     let mut sequential_vec = Vec::new();
     let interval = (end - start) / steps as f32;
@@ -286,7 +287,7 @@ impl Matrix {
 /// ```
 /// Creates 1x5 Matrix
 /// ```
-/// let matrix = srmc::create_matrix(1, 5); //creates 1x5 matrix
+/// let matrix = srmc::create_matrix(1, 5);
 /// ```
 pub fn create_matrix(rows: i32, columns: i32) -> Matrix {
     return Matrix {
@@ -340,6 +341,71 @@ pub fn create_identity_matrix(dimension: i32) -> Matrix {
     return res_mat;
 }
 
+/// Multiplies two Matricies together and returns the result as an SRMC Matrix.
+/// ```
+/// let matrix1 = srmc::create_numbered_matrix(3, 2);
+/// let matrix2 = srmc::create_numbered_matrix(2, 2);
+/// let matrix3 = srmc::matrix_multiplication(&matrix1, &matrix2);
+/// ```
+/// NOTE: Running this function keeps input Matricies unchanged and creates a new Matrix.
+/// If you want to run without creating a new Matrix do the following:
+/// ```
+/// let mut matrix1 = srmc::create_numbered_matrix(3, 2);
+/// let matrix2 = srmc::create_numbered_matrix(2, 2);
+/// matrix1 = srmc::matrix_multiplication(&matrix1, &matrix2);
+/// ```
+/// In the above code, matrix2 could have also been mutable and set equal to the result.
+pub fn matrix_multiplication(mat1: &Matrix, mat2: &Matrix) -> Matrix {
+    if mat1.columns != mat2.rows {
+        panic!("Matricies have incompatible dimensions.");
+    }
+    let mut res_mat = create_matrix(mat1.rows, mat2.columns);
+    let mut i: usize = 0;
+    while i < mat1.rows as usize {
+        let mut j: usize = 0;
+        while j < mat2.columns as usize {
+            let mut k: usize = 0;
+            while k < mat2.rows as usize {
+                res_mat.elements[i][j] += mat1.elements[i][k] * mat2.elements[k][j];
+                k = k + 1;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return res_mat;
+}
+
+/// Returns the determinant of a 2x2 Matrix.
+/// ```
+/// let matrix = srmc::create_numbered_matrix(2, 2);
+/// let determinant = srmc::matrix_2x2det(&matrix);
+/// ```
+pub fn matrix_2x2det(mat: &Matrix) -> f32 {
+    if mat.rows != 2 || mat.columns != 2 {
+        panic!("Matrix must be of size 2x2.");
+    }
+    return (mat.elements[0][0] * mat.elements[1][1]) - (mat.elements[0][1] * mat.elements[1][0]);
+}
+
+/// Returns the determinant of a 3x3 Matrix.
+/// ```
+/// let matrix = srmc::create_numbered_matrix(3, 3);
+/// let determinant = srmc::matrix_3x3det(&matrix);
+/// ```
+pub fn matrix_3x3det(mat: &Matrix) -> f32 {
+    if mat.rows != 3 || mat.columns != 3 {
+        panic!("Matrix must be of size 3x3.");
+    }
+    let val1: f32 =
+        (mat.elements[1][1] * mat.elements[2][2]) - (mat.elements[1][2] * mat.elements[2][1]);
+    let val2: f32 =
+        (mat.elements[1][0] * mat.elements[2][2]) - (mat.elements[1][2] * mat.elements[2][0]);
+    let val3: f32 =
+        (mat.elements[1][0] * mat.elements[2][1]) - (mat.elements[1][1] * mat.elements[2][0]);
+    return (mat.elements[0][0] * val1) - (mat.elements[0][1] * val2) + (mat.elements[0][2] * val3);
+}
+
 /// Adds two Matricies together and returns the result as an SRMC Matrix
 /// ```
 /// let matrix1 = srmc::create_numbered_matrix(3,3);
@@ -351,7 +417,7 @@ pub fn create_identity_matrix(dimension: i32) -> Matrix {
 /// ```
 /// let mut matrix1 = srmc::create_numbered_matrix(3,3);
 /// let matrix2 = srmc::create_numbered_matrix(3,3);
-/// let matrix1 = srmc::matrix_addition(&matrix1, &matrix2);
+/// matrix1 = srmc::matrix_addition(&matrix1, &matrix2);
 /// ```
 /// In the above code, matrix2 could have also been mutable and set equal to the result.
 pub fn matrix_addition(mat1: &Matrix, mat2: &Matrix) -> Matrix {
